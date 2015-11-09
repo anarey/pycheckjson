@@ -1,7 +1,6 @@
 import json
 
-
-def proccess_msg(blacklist, expected_values, message):
+def exist_msg(blacklist, expected_values, message):
     result = 0
     cleaned_message =  "".join(message.split(" "))
 
@@ -18,6 +17,21 @@ def proccess_msg(blacklist, expected_values, message):
     return result
 
 
+def lookfor_msg(json_dic, message_json):
+    for msg_theme in json_dic:
+        msg = json_dic[msg_theme][0]
+        if len(msg.keys()) == 2 and "blacklist" in msg.keys() and "expected_values" in msg.keys():
+            blacklist = msg[u'blacklist']
+            expected_values = msg[u'expected_values']
+            result = exist_msg(blacklist, expected_values, message_json)
+
+            if result == 0:
+                ##key_delete = msg_theme
+                print "message found"
+                return msg_theme
+
+
+
 def main():
     print "Check all themes"
 
@@ -25,33 +39,33 @@ def main():
     theme_file = open('themes/theme-example.json')
     json_dic = json.load(theme_file)
 ##    message_json = "{\"bytes\": \"10\", \"pkts\": \"5\", \"type\": \"netflowv9\", \"l4_proto\": \"17\", \"tcp_flags\": \"0\", \"output_snmp\":\"2222\"}"
+    theme_file.close()
+
     message_json = "{\"bytes\": \"10\", \"pkts\": \"5\", \"type\": \"netflowv9\", \"l4_proto\": \"17\", \"tcp_flags\": \"0\",}"
     key_delete = ""
     result = 0
+    tofound = len(json_dic)
+    error = 0
 
-    for msg_theme in json_dic:
-        msg = json_dic[msg_theme][0]
-        if len(msg.keys()) == 2 and "blacklist" in msg.keys() and "expected_values" in msg.keys():
-            blacklist = msg[u'blacklist']
-            expected_values = msg[u'expected_values']
-            result = proccess_msg(blacklist, expected_values, message_json) 
+    key_delete = lookfor_msg(json_dic, message_json)
 
-            if result == 0:
-                key_delete = msg_theme
-                print "message found"
-                break
-
-    if (result == 0 and len(key_delete) > 0):
+    if len(key_delete) > 0:
         print "We delete the message of the batch of themes:  %s" % (json_dic[key_delete])
         del(json_dic[key_delete])
+        tofound = tofound - 1
+    else:
+        error = 0
+        print("Mensaje no encontrado")
 
 
-    if result == -1:
-        print "We do not found the message"
+    if len(json_dic) > 0:
+        print "Themes are not deleted: \n %s" % (json_dic)
 
-    print "Themes are not deleted: \n %s" % (json_dic)
+    if len(json_dic) > 0 or error > 0 or tofound > 0:
+        print "Test no pasted"
+        result = -1
 
-    theme_file.close()
+    return result
 
 if __name__ == '__main__':
     main()
