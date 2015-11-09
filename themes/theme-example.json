@@ -1,0 +1,29 @@
+{
+    "messager1": [
+        {
+            "expected_values": {
+                "bytes": 10,
+                "pkts": 5,
+                "type": "netflowv9",
+                "l4_proto": 17,
+                "tcp_flags": 0
+            },
+            "blacklist": [
+                "output_snmp",
+                "abc"
+            ]
+        }
+    ],
+    "messager2": [
+        {
+            "expected_values": {
+                "prev_as": 0,
+                "sensor_name": "sensor_abc"
+            },
+            "blacklist": [
+                "timestamp",
+                "first_switched"
+            ]
+        }
+    ]
+}
