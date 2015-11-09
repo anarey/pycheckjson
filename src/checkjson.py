@@ -1,4 +1,5 @@
 import json
+from types import *
 
 def exist_msg(blacklist, expected_values, message):
     result = 0
@@ -10,11 +11,19 @@ def exist_msg(blacklist, expected_values, message):
 
     for key in expected_values.keys():
         value = expected_values[key]
-        msg_search = "\"%s\":\"%s\"" % (key, value)
-        if (cleaned_message.find(msg_search) == -1):
-            return -1    
+        msg_search = ""
 
-    return result
+        if type(value) is IntType or type(value) is LongType:
+            msg_search = "\"%s\":%d" % (key, value)
+        elif type(value) is StringType or type(value) is UnicodeType:
+            msg_search = "\"%s\":\"%s\"" % (key, value)
+        elif type(value) is BooleanType:
+            msg_search = "\"%s\":\"%s\"" % (key, value)
+
+        if (cleaned_message.find(msg_search) == -1):
+            return -1
+
+    return 0
 
 
 def lookfor_msg(json_dic, message_json):
@@ -26,9 +35,9 @@ def lookfor_msg(json_dic, message_json):
             result = exist_msg(blacklist, expected_values, message_json)
 
             if result == 0:
-                ##key_delete = msg_theme
                 print "message found"
                 return msg_theme
+    return ""
 
 
 
@@ -41,13 +50,13 @@ def main():
 ##    message_json = "{\"bytes\": \"10\", \"pkts\": \"5\", \"type\": \"netflowv9\", \"l4_proto\": \"17\", \"tcp_flags\": \"0\", \"output_snmp\":\"2222\"}"
     theme_file.close()
 
-    message_json = "{\"bytes\": \"10\", \"pkts\": \"5\", \"type\": \"netflowv9\", \"l4_proto\": \"17\", \"tcp_flags\": \"0\",}"
+    message_json = "{\"bytes\": 10, \"pkts\": 5, \"type\": \"netflowv9\", \"l4_proto\": 17, \"tcp_flags\": 0,}"
     key_delete = ""
     result = 0
     tofound = len(json_dic)
     error = 0
-
     key_delete = lookfor_msg(json_dic, message_json)
+
 
     if len(key_delete) > 0:
         print "We delete the message of the batch of themes:  %s" % (json_dic[key_delete])
@@ -64,6 +73,8 @@ def main():
     if len(json_dic) > 0 or error > 0 or tofound > 0:
         print "Test no pasted"
         result = -1
+    else:
+        print "Test passed"
 
     return result
 
