@@ -1,5 +1,13 @@
 import json
 from types import *
+import argparse
+
+def print_use():
+    print "usage: checkjson.py [-h] [path/to/file.t]"
+    print "positional arguments:"
+    print "  path/to/file.t  Check the json message with this theme."
+    print "optional arguments:"
+    print "  -h, --help      show this help message and exit"
 
 def exist_msg(blacklist, expected_values, message):
     result = 0
@@ -42,14 +50,30 @@ def lookfor_msg(json_dic, message_json):
 
 
 def main():
-    print "Check all themes"
+
+    parser = argparse.ArgumentParser(description='Check json file.')
+    parser.add_argument('filename', nargs='?',
+                        metavar='path/to/file.t',
+                        help='Check the json message with this theme.')
+    args = parser.parse_args()
+
+    if args.filename:
+        try:
+            theme_file = open(args.filename)
+        except EOFError:
+            print "Cannot open log file %s" % (args.filename)
+            return
+    else:
+        print("Error: You should set a theme file name")
+        print_use()
+        return
 
     json_dic = {}
-    theme_file = open('themes/theme-example.json')
     json_dic = json.load(theme_file)
 ##    message_json = "{\"bytes\": \"10\", \"pkts\": \"5\", \"type\": \"netflowv9\", \"l4_proto\": \"17\", \"tcp_flags\": \"0\", \"output_snmp\":\"2222\"}"
     theme_file.close()
 
+    print "Check all themes"
     message_json = "{\"bytes\": 10, \"pkts\": 5, \"type\": \"netflowv9\", \"l4_proto\": 17, \"tcp_flags\": 0,}"
     key_delete = ""
     result = 0
