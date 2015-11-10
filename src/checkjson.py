@@ -1,6 +1,10 @@
 import json
 from types import *
 import argparse
+import signal
+import sys
+
+signal_received = 0
 
 def print_use():
     print "usage: checkjson.py [-h] [path/to/file.t]"
@@ -48,6 +52,14 @@ def lookfor_msg(json_dic, message_json):
     return ""
 
 
+def preexec():
+    os.setpgrp()  # Don't forward signals.
+
+
+def signal_handler(signal, frame):
+    global signal_received
+    signal_received = 1
+
 
 def main():
 
@@ -73,34 +85,43 @@ def main():
 ##    message_json = "{\"bytes\": \"10\", \"pkts\": \"5\", \"type\": \"netflowv9\", \"l4_proto\": \"17\", \"tcp_flags\": \"0\", \"output_snmp\":\"2222\"}"
     theme_file.close()
 
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
     print "Check all themes"
     message_json = "{\"bytes\": 10, \"pkts\": 5, \"type\": \"netflowv9\", \"l4_proto\": 17, \"tcp_flags\": 0,}"
     key_delete = ""
     result = 0
     tofound = len(json_dic)
     error = 0
-    key_delete = lookfor_msg(json_dic, message_json)
+    while (signal_handler != 1): ## TODO: Or not more messages
+        if signal_received == 1:
+            print "\nSignal received. Cleaning up and Exitting..."
+            ##cleanup_on_exit()
+            ##return result
+            sys.exit(-1)
+        key_delete = lookfor_msg(json_dic, message_json)
+
+        if len(key_delete) > 0:
+            print "We delete the message of the batch of themes:  %s" % (json_dic[key_delete])
+            del(json_dic[key_delete])
+            tofound = tofound - 1
+        else:
+            error = 0
+            print("Mensaje no encontrado")
 
 
-    if len(key_delete) > 0:
-        print "We delete the message of the batch of themes:  %s" % (json_dic[key_delete])
-        del(json_dic[key_delete])
-        tofound = tofound - 1
-    else:
-        error = 0
-        print("Mensaje no encontrado")
+        if len(json_dic) > 0:
+            print "Themes are not deleted: \n %s" % (json_dic)
+
+        if len(json_dic) > 0 or error > 0 or tofound > 0:
+            print "Test no pasted"
+            result = -1
+        else:
+            print "Test passed"
 
 
-    if len(json_dic) > 0:
-        print "Themes are not deleted: \n %s" % (json_dic)
-
-    if len(json_dic) > 0 or error > 0 or tofound > 0:
-        print "Test no pasted"
-        result = -1
-    else:
-        print "Test passed"
-
-    return result
 
 if __name__ == '__main__':
     main()
