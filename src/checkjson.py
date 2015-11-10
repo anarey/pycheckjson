@@ -101,9 +101,7 @@ def main():
         message_json = line
         if signal_received == 1:
             print "\nSignal received. Cleaning up and Exitting..."
-            ##cleanup_on_exit()
-            ##return result
-            sys.exit(-1)
+            break
         if len(json_dic) == 0:
             error = error + 1
             print "Error: Number of json messages > Number of template files."
@@ -116,6 +114,10 @@ def main():
             key_delete = ""
         else:
             error = error + 1
+
+    if signal_received == 1:
+        print "Test failed."
+        return -1
 
     if len(json_dic) > 0 or error > 0:
         print "Test failed."
