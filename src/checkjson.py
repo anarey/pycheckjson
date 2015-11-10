@@ -3,6 +3,7 @@ from types import *
 import argparse
 import signal
 import sys
+import fileinput
 
 signal_received = 0
 
@@ -47,7 +48,6 @@ def lookfor_msg(json_dic, message_json):
             result = exist_msg(blacklist, expected_values, message_json)
 
             if result == 0:
-                print "message found"
                 return msg_theme
     return ""
 
@@ -67,7 +67,7 @@ def main():
     parser.add_argument('filename', nargs='?',
                         metavar='path/to/file.t',
                         help='Check the json message with this theme.')
-    args = parser.parse_args()
+    args, unk = parser.parse_known_args()
 
     if args.filename:
         try:
@@ -76,7 +76,7 @@ def main():
             print "Cannot open log file %s" % (args.filename)
             return
     else:
-        print("Error: You should set a theme file name")
+        print("Error: No template files to run.")
         print_use()
         return
 
@@ -89,13 +89,17 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    print "Check all themes"
-    message_json = "{\"bytes\": 10, \"pkts\": 5, \"type\": \"netflowv9\", \"l4_proto\": 17, \"tcp_flags\": 0,}"
     key_delete = ""
     result = 0
     tofound = len(json_dic)
     error = 0
-    while (signal_handler != 1): ## TODO: Or not more messages
+    final = False
+
+    i =0
+    ##while (signal_handler != 1 or final == False): ## TODO: Or not more messages
+    for line in fileinput.input(unk):
+        i = i +1
+        message_json = line
         if signal_received == 1:
             print "\nSignal received. Cleaning up and Exitting..."
             ##cleanup_on_exit()
@@ -104,24 +108,23 @@ def main():
         key_delete = lookfor_msg(json_dic, message_json)
 
         if len(key_delete) > 0:
-            print "We delete the message of the batch of themes:  %s" % (json_dic[key_delete])
             del(json_dic[key_delete])
             tofound = tofound - 1
+            key_delete = ""
         else:
-            error = 0
-            print("Mensaje no encontrado")
+            error = error + 1
 
-
+    if len(json_dic) > 0 or error > 0 or tofound > 0:
+        print "Test failed. There are %d errores." % (error)
         if len(json_dic) > 0:
-            print "Themes are not deleted: \n %s" % (json_dic)
+            print "The following message are not received:"
+            print json_dic
+        result = -1
+    else:
+        print "Test passed."
+      ##  final = True
 
-        if len(json_dic) > 0 or error > 0 or tofound > 0:
-            print "Test no pasted"
-            result = -1
-        else:
-            print "Test passed"
-
-
+    return result
 
 if __name__ == '__main__':
     main()
