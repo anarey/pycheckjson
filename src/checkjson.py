@@ -85,7 +85,6 @@ def main():
 ##    message_json = "{\"bytes\": \"10\", \"pkts\": \"5\", \"type\": \"netflowv9\", \"l4_proto\": \"17\", \"tcp_flags\": \"0\", \"output_snmp\":\"2222\"}"
     theme_file.close()
 
-
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
@@ -105,17 +104,27 @@ def main():
             ##cleanup_on_exit()
             ##return result
             sys.exit(-1)
+        if len(json_dic) == 0:
+            error = error + 1
+            print "Error: Number of json messages > Number of template files."
+            break
+
         key_delete = lookfor_msg(json_dic, message_json)
 
         if len(key_delete) > 0:
             del(json_dic[key_delete])
-            tofound = tofound - 1
             key_delete = ""
         else:
             error = error + 1
 
-    if len(json_dic) > 0 or error > 0 or tofound > 0:
-        print "Test failed. There are %d errores." % (error)
+    if len(json_dic) > 0 or error > 0:
+        print "Test failed."
+        if error > 0:
+            print "There are %d errores." % (error)
+        else:
+            print "Error: There is a problem."
+            result = -1
+
         if len(json_dic) > 0:
             print "The following message are not received:"
             print json_dic
