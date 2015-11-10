@@ -7,6 +7,7 @@ import fileinput
 
 signal_received = 0
 
+
 def print_use():
     print "usage: checkjson.py [-h] [path/to/file.t]"
     print "positional arguments:"
@@ -14,9 +15,10 @@ def print_use():
     print "optional arguments:"
     print "  -h, --help      show this help message and exit"
 
+
 def exist_msg(blacklist, expected_values, message):
     result = 0
-    cleaned_message =  "".join(message.split(" "))
+    cleaned_message = "".join(message.split(" "))
 
     for elem in blacklist:
         if elem in cleaned_message:
@@ -82,7 +84,6 @@ def main():
 
     json_dic = {}
     json_dic = json.load(theme_file)
-##    message_json = "{\"bytes\": \"10\", \"pkts\": \"5\", \"type\": \"netflowv9\", \"l4_proto\": \"17\", \"tcp_flags\": \"0\", \"output_snmp\":\"2222\"}"
     theme_file.close()
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -92,12 +93,10 @@ def main():
     result = 0
     tofound = len(json_dic)
     error = 0
-    final = False
 
-    i =0
-    ##while (signal_handler != 1 or final == False): ## TODO: Or not more messages
+    i = 0
     for line in fileinput.input(unk):
-        i = i +1
+        i = i + 1
         message_json = line
         if signal_received == 1:
             print "\nSignal received. Cleaning up and Exitting..."
@@ -122,7 +121,7 @@ def main():
     if len(json_dic) > 0 or error > 0:
         print "Test failed."
         if error > 0:
-            print "There are %d errores." % (error)
+            print "There are %d errors." % (error)
         else:
             print "Error: There is a problem."
             result = -1
@@ -133,11 +132,8 @@ def main():
         result = -1
     else:
         print "Test passed."
-      ##  final = True
 
     return result
 
 if __name__ == '__main__':
     main()
-
-## message_json = "{\"bytes\": 10, \"pkts\": 5, \"type\": \"netflowv9\", \"l4_proto\": 17, \"tcp_flags\": 0}"
