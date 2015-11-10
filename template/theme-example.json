@@ -1,20 +1,20 @@
 {
-    "messager1": [
+    "message1": [
         {
             "expected_values": {
                 "bytes": 10,
                 "pkts": 5,
                 "type": "netflowv9",
-                "l4_proto": 17,
-                "tcp_flags": 0
+                "l4_proto": "17",
+                "tcp_flags": "0"
             },
             "blacklist": [
-                "output_snmp",
+                "output_snm",
                 "abc"
             ]
         }
     ],
-    "messager2": [
+    "message2": [
         {
             "expected_values": {
                 "prev_as": 0,

@@ -11,7 +11,7 @@ signal_received = 0
 def print_use():
     print "usage: checkjson.py [-h] [path/to/file.t]"
     print "positional arguments:"
-    print "  path/to/file.t  Check the json message with this theme."
+    print "  path/to/file.t  Check the json message with this template."
     print "optional arguments:"
     print "  -h, --help      show this help message and exit"
 
@@ -42,15 +42,15 @@ def exist_msg(blacklist, expected_values, message):
 
 
 def lookfor_msg(json_dic, message_json):
-    for msg_theme in json_dic:
-        msg = json_dic[msg_theme][0]
+    for msg_template in json_dic:
+        msg = json_dic[msg_template][0]
         if len(msg.keys()) == 2 and "blacklist" in msg.keys() and "expected_values" in msg.keys():
             blacklist = msg[u'blacklist']
             expected_values = msg[u'expected_values']
             result = exist_msg(blacklist, expected_values, message_json)
 
             if result == 0:
-                return msg_theme
+                return msg_template
     return ""
 
 
@@ -68,12 +68,12 @@ def main():
     parser = argparse.ArgumentParser(description='Check json file.')
     parser.add_argument('filename', nargs='?',
                         metavar='path/to/file.t',
-                        help='Check the json message with this theme.')
+                        help='Check the json message with this template.')
     args, unk = parser.parse_known_args()
 
     if args.filename:
         try:
-            theme_file = open(args.filename)
+            template_file = open(args.filename)
         except EOFError:
             print "Cannot open log file %s" % (args.filename)
             return
@@ -83,8 +83,8 @@ def main():
         return
 
     json_dic = {}
-    json_dic = json.load(theme_file)
-    theme_file.close()
+    json_dic = json.load(template_file)
+    template_file.close()
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
