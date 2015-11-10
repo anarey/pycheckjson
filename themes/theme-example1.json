@@ -1,0 +1,58 @@
+{
+    "message1": [
+        {
+            "expected_values": {
+                "bytes": 2099953,
+                "pkts": 500,
+                "type": "netflowv9",
+                "dst": "74.125.198.26"
+            },
+            "blacklist": [
+                "output_snm",
+                "abc"
+            ]
+        }
+    ],
+        "message2": [
+        {
+            "expected_values": {
+                "bytes": 2831406,
+                "pkts": 500,
+                "type": "netflowv9",
+                "dst": "98.139.183.24"
+            },
+            "blacklist": [
+                "output_snm",
+                "abc"
+            ]
+        }
+    ],
+        "message3": [
+        {
+            "expected_values": {
+                "bytes": 2333068,
+                "pkts": 500,
+                "type": "netflowv9",
+                "dst": "199.101.163.129"
+            },
+            "blacklist": [
+                "output_snm",
+                "abc"
+            ]
+        }
+    ],
+        "message4": [
+        {
+            "expected_values": {
+                "bytes": 2957523,
+                "pkts": 500,
+                "type": "netflowv9",
+                "dst": "199.101.163.129"
+            },
+            "blacklist": [
+                "output_snm",
+                "abc"
+            ]
+        }
+    ]
+}
