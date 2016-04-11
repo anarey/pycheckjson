@@ -4,17 +4,21 @@ import argparse
 import signal
 import sys
 import fileinput
+import os.path
 
 signal_received = 0
 
 
 def print_use():
-    print "usage: checkjson.py [-h] [path/to/file.t]"
+    print ""
+    print "checkjson.py [-h] [-t path/to/file.t] [-j path/to/file.t]"
     print "positional arguments:"
-    print "  path/to/file.t  Check the json message with this template."
+    print "    -t path/to/file.t, --template path/to/file.t"
+    print "        Use this template json file."
+    print "    -j path/to/file.t, --json_file path/to/file.t"
+    print "        Check this json message with this template."
     print "optional arguments:"
     print "  -h, --help      show this help message and exit"
-
 
 def exist_msg(blacklist, expected_values, message):
     result = 0
@@ -66,19 +70,34 @@ def signal_handler(signal, frame):
 def main():
 
     parser = argparse.ArgumentParser(description='Check json file.')
-    parser.add_argument('filename', nargs='?',
+    parser.add_argument('-t', '--template',
                         metavar='path/to/file.t',
-                        help='Check the json message with this template.')
-    args, unk = parser.parse_known_args()
+                        help='Use this template json file.')
+    parser.add_argument('-j', '--json_file',
+                        metavar='path/to/file.t',
+                        help='Check this json message with this template.')
+    args = parser.parse_args()
 
-    if args.filename:
+    if args.template:
         try:
-            template_file = open(args.filename)
+            template_file = open(args.template)
         except EOFError:
-            print "Cannot open log file %s" % (args.filename)
+            print "Cannot open log file %s" % (args.template)
             return
     else:
         print("Error: No template files to run.")
+        print_use()
+        return
+
+    if args.json_file:
+        if os.path.isfile(args.json_file):
+            json_file = args.json_file
+        else:
+            print "Error: %s is not an existing json file." % (args.json_file)
+            print_use()
+            return
+    else:
+        print("Error: No json files to run. You have to add a json file to check")
         print_use()
         return
 
@@ -95,7 +114,8 @@ def main():
     error = 0
 
     i = 0
-    for line in fileinput.input(unk):
+    for line in fileinput.input(json_file):
+
         i = i + 1
         message_json = line
         if signal_received == 1:
