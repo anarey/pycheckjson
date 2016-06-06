@@ -20,6 +20,7 @@ def print_use():
     print "    -j path/to/file.t, --json_file path/to/file.t"
     print "        Check this json message with this template."
     print "optional arguments:"
+    print "  -d, --debug     Enable debugging mode"
     print "  -h, --help      show this help message and exit"
 
 def exist_msg(blacklist, expected_values, message, tmp_log):
@@ -43,7 +44,9 @@ def exist_msg(blacklist, expected_values, message, tmp_log):
         elif type(value) is BooleanType:
             msg_search = "\"%s\":%s" % (key, value)
 
-        print "Exist_msg: El mensaje es: " + str(msg_search)
+        if debug_option:
+            print "Exist_msg: El mensaje es: " + str(msg_search)
+
         if (cleaned_message.find(msg_search) == -1):
             tmp_log = tmp_log + msg_search
             return -1
@@ -60,7 +63,8 @@ def lookfor_msg(json_dic, message_json):
             expected_values = msg[u'expected_values']
             result = exist_msg(blacklist, expected_values, message_json, log_tmp)
             if result == 0:
-                print "Hay una plantilla que cumple con ese mensaje. Elimino el elemento de la plantilla."
+                if debug_option:
+                    print "Hay una plantilla que cumple con ese mensaje. Elimino el elemento de la plantilla."
                 ##del json_dic["msg_template"]
                 return msg_template
 
@@ -106,6 +110,9 @@ def main():
     parser.add_argument('-j', '--json_file',
                         metavar='path/to/file.t',
                         help='Check this json message with this template.')
+    parser.add_argument('-d', '--debug', action='store_true', dest='debug',
+                        help='Enable debugging mode')
+
     args = parser.parse_args()
 
     if args.template:
@@ -134,6 +141,9 @@ def main():
     PATH = os.path.abspath(os.path.dirname(__file__))
     LOG_CHANGES = "diffences_json.log"
     logger = init_logger(LOG_CHANGES, "./", "diff")
+
+    global debug_option
+    debug_option = args.debug
 
 
     json_dic = {}
@@ -167,7 +177,8 @@ def main():
 
         if len(key_delete) > 0:
             logger.debug("Delete this entry " + str(key_delete))
-            print "key_delete " + str(key_delete)
+            if debug_option:
+                print "key_delete " + str(key_delete)
             del(json_dic[key_delete])
             key_delete = ""
         else:
